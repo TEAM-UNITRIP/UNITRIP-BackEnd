@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "lint": "eslint .",
-    "start": "babel-node index.js"
+    "start": "babel-node index.js",
+    "dev": "nodemon ./src/index.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.1",
