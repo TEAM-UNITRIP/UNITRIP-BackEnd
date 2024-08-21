@@ -1,6 +1,7 @@
 import express from 'express';
-import { authController } from '../controllers/auth.controller.js';
+import { logInKakao, authCallback } from '../controllers/auth.controller.js';
 
 export const router = express.Router();
 
-router.post('/login', authController.logInKakao);
+router.get('/login', logInKakao);
+router.get('/callback', authCallback);
