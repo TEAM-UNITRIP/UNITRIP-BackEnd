@@ -5,7 +5,10 @@ import globals from 'globals';
 export default [
   {
     languageOptions: {
-      globals: globals.browser,
+      globals: {
+        ...globals,
+        process: 'readonly',
+      }
     },
   },
   pluginJs.configs.recommended,
