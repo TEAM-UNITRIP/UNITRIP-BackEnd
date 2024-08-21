@@ -1,6 +1,6 @@
 import express from 'express';
-import { userController } from '../controllers/temp.controller.js';
+import { authController } from '../controllers/auth.controller.js';
 
 export const router = express.Router();
 
-router.post('/login', userController.logInKakao);
+router.post('/login', authController.logInKakao);
