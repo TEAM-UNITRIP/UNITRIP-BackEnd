@@ -2,7 +2,7 @@ import { status } from '../../config/response.status.js';
 import { kakaoLoginService } from '../services/auth.service.js';
 import { response } from '../../config/response.js';
 
-export const logInKakao = asyncWrap(async(req, res) => {
+export const logInKakao = async(req, res) => {
     const provider = 'kakao';
     const { data, error } = await kakaoLoginService(provider);
 
@@ -12,31 +12,26 @@ export const logInKakao = asyncWrap(async(req, res) => {
     } else if (error) {
         res.send((response(status.FAIL)));
     }
-});
+};
 
-export const authCallback = asyncWrap(async(req, res) => {
+export const authCallback = async(req, res) => {
+    //카카오 인증 코드
     const code = req.query.code;
+    //리다이렉트 경로
     const next = req.query.next ?? '/';
 
     if (code) {
-        const supabaseClient = createServerClient(
-            process.env.PROJECT_URL,
-            process.env.ANON_KEY,
-            {
-                cookies: {
-                    getAll() {
-                        return parseCookieHeader(req.headers.cookie ?? '');
-                    },
-                    setAll(cookiesToSet) {
-                        cookiesToSet.forEach(({ name, value, options }) =>
-                            res.append('Set-Cookie', serializeCookieHeader(name, value, options))
-                        );
-                    },
-                },
-            }
-        );
+        // 토큰 요청
+        const tokenResponse = await fetchKakaoToken(code);
+        const { id_token } = tokenResponse;
 
-        await supabaseClient.auth.exchangeCodeForSession(code);
+        // ID 토큰으로 로그인 요청
+        const session = await loginWithIdToken(id_token);
+
+        if (!session) {
+            return res.send(response(status.FAIL)); // 로그인 실패 처리
+        }
     }
+    //카카오 서버로 로그인 POST 과정이 잘 마무리되면 지정해준 페이지로 리다이렉트    
     res.redirect(303, `/${next.slice(1)}`);
-});
+};
